@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Juego Inglés Mixto</title>
+
+<style>
+*{box-sizing:border-box}
+
+body{
+margin:0;
+font-family:Arial,sans-serif;
+background:#0f172a;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+color:white;
+}
+
+.card{
+background:#1e293b;
+padding:25px;
+border-radius:18px;
+width:min(95vw,550px);
+text-align:center;
+box-shadow:0 10px 30px rgba(0,0,0,.35);
+}
+
+.top{
+display:flex;
+justify-content:space-between;
+font-size:20px;
+margin-bottom:20px;
+}
+
+#mode{
+font-size:18px;
+color:#facc15;
+margin-bottom:10px;
+}
+
+#word{
+font-size:46px;
+font-weight:bold;
+color:#38bdf8;
+margin:20px 0;
+min-height:60px;
+}
+
+input{
+width:100%;
+padding:14px;
+font-size:22px;
+border:none;
+border-radius:12px;
+text-align:center;
+}
+
+button{
+margin-top:15px;
+padding:12px 28px;
+font-size:18px;
+border:none;
+border-radius:12px;
+cursor:pointer;
+background:#0ea5e9;
+color:white;
+}
+
+button:hover{
+background:#0284c7;
+}
+
+#msg{
+margin-top:18px;
+font-size:22px;
+min-height:35px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+
+<div class="top">
+<span>❤️ <b id="lives">3</b></span>
+<span>⭐ <b id="score">0</b></span>
+<span>🏆 <b id="record">0</b></span>
+</div>
+
+<div id="mode"></div>
+
+<div id="word"></div>
+
+<input id="answer" placeholder="Escribe la traducción">
+
+<button onclick="check()">Aceptar</button>
+
+<div id="msg"></div>
+
+</div>
+
+<script>
+
+const words=[
+
+{es:"agua",en:["water"]},
+{es:"por favor",en:["please"]},
+{es:"y",en:["and"]},
+{es:"café",en:["coffee"]},
+{es:"con",en:["with"]},
+{es:"leche",en:["milk"]},
+{es:"azúcar",en:["sugar"]},
+{es:"adiós",en:["goodbye","bye"]},
+{es:"té",en:["tea"]},
+{es:"o",en:["or"]},
+{es:"hola",en:["hello","hi"]},
+{es:"nombre",en:["name"]},
+{es:"tú",en:["you"]},
+{es:"mi",en:["my"]},
+{es:"también",en:["too"]},
+{es:"gracias",en:["thank you","thanks"]},
+{es:"bienvenido",en:["welcome"]},
+{es:"mucho gusto",en:["nice to meet you"]},
+{es:"¿cuál es tu nombre?",en:["what's your name?"]},
+{es:"mi nombre es",en:["my name is"]}
+
+];
+
+let lives=3;
+let score=0;
+let best=localStorage.mixRecord||0;
+
+record.textContent=best;
+
+let answers=[];
+let current="";
+
+function normalize(t){
+
+return t.toLowerCase()
+.normalize("NFD")
+.replace(/[\u0300-\u036f]/g,"")
+.replace(/[¿?¡!.,']/g,"")
+.replace(/\s+/g," ")
+.trim();
+
+}
+
+function next(){
+
+const item=words[Math.floor(Math.random()*words.length)];
+
+if(Math.random()<0.5){
+
+mode.textContent="🇲🇽 Español → Inglés";
+current=item.es;
+answers=item.en;
+
+}else{
+
+mode.textContent="🇺🇸 English → Español";
+current=item.en[Math.floor(Math.random()*item.en.length)];
+answers=[item.es];
+
+}
+
+word.textContent=current;
+answer.value="";
+msg.textContent="";
+answer.focus();
+
+}
+
+function update(){
+
+lives.textContent=lives;
+score.textContent=score;
+
+if(score>best){
+
+best=score;
+localStorage.mixRecord=best;
+record.textContent=best;
+
+}
+
+}
+
+function check(){
+
+const user=normalize(answer.value);
+
+const ok=answers.some(a=>normalize(a)==user);
+
+if(ok){
+
+score++;
+msg.textContent="✅ ¡Correcto!";
+
+}else{
+
+lives--;
+msg.textContent="❌ Respuesta: "+answers[0];
+
+}
+
+update();
+
+if(lives<=0){
+
+setTimeout(()=>{
+
+alert("🎮 Fin del juego\n\nPuntuación: "+score);
+
+score=0;
+lives=3;
+
+update();
+next();
+
+},500);
+
+}else{
+
+setTimeout(next,700);
+
+}
+
+}
+
+answer.addEventListener("keydown",e=>{
+
+if(e.key==="Enter")check();
+
+});
+
+update();
+next();
+
+</script>
+
+</body>
+</html>
